@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>dc.js - Filter Group Example</title>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" type="text/css" href="../css/dc.css"/>
+</head>
+<body>
+
+<div id="test1"></div>
+<div id="test2"></div>
+
+<script type="text/javascript" src="../js/d3.js"></script>
+<script type="text/javascript" src="../js/crossfilter.js"></script>
+<script type="text/javascript" src="../js/dc.js"></script>
+<script type="text/javascript">
+
+var chart1 = dc.barChart("#test1");
+var chart2 = dc.barChart("#test2");
+
+d3.csv("monthly-move.csv", function(error, moves) {
+
+    var ndx                 = crossfilter(moves.slice(0, 99)),
+        dateDimension        = ndx.dimension(function(d) {return new Date(d.date);}),
+        openSumGroup       = dateDimension.group().reduceSum(function(d) { return +d.open;}),
+        dateDimension2        = ndx.dimension(function(d) {return new Date(d.date);}),
+        openSumGroup2       = dateDimension.group().reduceSum(function(d) { return +d.open;});
+
+    
+    chart1
+        .width(400)
+        .height(300)
+        .x(d3.time.scale().domain([new Date(dateDimension.bottom(1)[0].date), new Date(dateDimension.top(1)[0].date)]))
+        .xUnits(d3.time.days)
+        .brushOn(true)
+        .centerBar(true)
+        .yAxisLabel("This is the Y Axis!")
+        .dimension(dateDimension)
+        .group(openSumGroup);
+    chart2
+        .width(400)
+        .height(300)
+        .x(d3.time.scale().domain([new Date(dateDimension.bottom(1)[0].date), new Date(dateDimension.top(1)[0].date)]))
+        .xUnits(d3.time.days)
+        .brushOn(true)
+        .centerBar(true)
+        .yAxisLabel("This is the Y Axis!")
+        .dimension(dateDimension2)
+        .group(openSumGroup2)
+        .rangeChart(chart1);
+
+    dc.renderAll();
+    
+
+});
+
+</script>
+
+</body>
+</html>
